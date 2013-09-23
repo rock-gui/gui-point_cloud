@@ -1,0 +1,9 @@
+<package>
+  <description brief="visualization for point clouds based on base::samples::Pointcloud data">
+  </description>
+  <author>Malte Wirkus/malte.wirkus@dfki.de</author>
+  <license>LGPLv2 or later</license>
+
+  <depend package="base/types" />
+  <depend package="gui/vizkit" />
+</package>
