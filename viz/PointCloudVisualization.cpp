@@ -10,7 +10,7 @@ namespace vizkit
 PointCloudVisualization::PointCloudVisualization()
 {
     color_ = osg::Vec4( 0.8, 0.8, 0.8, 1 );
-    reduction_ = 0.01;
+    reduction_ = 1.0;
     cloud_ = new osg::Vec3Array();
 }
 
@@ -73,42 +73,6 @@ QString PointCloudVisualization::modelFile() const{
 osg::ref_ptr< osg::Node > PointCloudVisualization::createMainNode()
 {
     osg::Group* group = new osg::Group;
-    osg::Geode* geode = new osg::Geode;
-
-    osg::Geometry* osg_points_ = new osg::Geometry;
-    osg_points_->setVertexArray( cloud_ );
-    osg_points_->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,cloud_->size()));
-
-
-    osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back(color_);
-
-    osg_points_->setColorArray(colors);
-    osg_points_->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
-
-
-
-    osg::StateSet* stateset = group->getOrCreateStateSet();
-    ///////////////////////////////////////////////////////////////////
-    // vertex shader using just Vec4 coefficients
-    char vertexShaderSource[] =
-            "void main(void) \n"
-            "{ \n"
-            "\n"
-            "    gl_FrontColor = gl_Color;\n"
-            "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
-            "}\n";
-
-
-
-    osg::Program* program = new osg::Program;
-    stateset->setAttribute(program);
-
-    osg::Shader* vertex_shader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
-    program->addShader(vertex_shader);
-    std::cout << cloud_->size() << std::endl;
-    geode->addDrawable(osg_points_);
-    group->addChild(geode);
 
     return group;
 }
@@ -133,14 +97,53 @@ void PointCloudVisualization::updateDataIntern ( const base::samples::Pointcloud
 {
     cloud_->clear();
     int step = data.points.size()/(data.points.size()*reduction_);
-    for(uint i=0; i<data.points.size(); step++){
+    for(uint i=0; i<data.points.size(); i=i+step){
         cloud_->push_back(to_osg(data.points[i]));
     }
 }
 
 void PointCloudVisualization::updateMainNode( osg::Node* node )
 {
+    if(node->asGroup()->getNumChildren() > 0){
+        node->asGroup()->removeChildren(0, 1);
+    }
 
+    osg::Geode* geode = new osg::Geode;
+
+    osg::Geometry* osg_points_ = new osg::Geometry;
+    osg_points_->setVertexArray( cloud_ );
+    osg_points_->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,cloud_->size()));
+
+
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back(color_);
+
+    osg_points_->setColorArray(colors);
+    osg_points_->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+
+
+
+    osg::StateSet* stateset = node->getOrCreateStateSet();
+    ///////////////////////////////////////////////////////////////////
+    // vertex shader using just Vec4 coefficients
+    char vertexShaderSource[] =
+            "void main(void) \n"
+            "{ \n"
+            "\n"
+            "    gl_FrontColor = gl_Color;\n"
+            "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+            "}\n";
+
+
+
+    osg::Program* program = new osg::Program;
+    stateset->setAttribute(program);
+
+    osg::Shader* vertex_shader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
+    program->addShader(vertex_shader);
+    std::cout << cloud_->size() << std::endl;
+    geode->addDrawable(osg_points_);
+    node->asGroup()->addChild(geode);
 }
 //Macro that makes this plugin loadable in ruby, this is optional.
 VizkitQtPlugin(PointCloudVisualization)
