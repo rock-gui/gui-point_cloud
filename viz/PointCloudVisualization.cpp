@@ -141,7 +141,7 @@ void PointCloudVisualization::updateMainNode( osg::Node* node )
 
     osg::Shader* vertex_shader = new osg::Shader(osg::Shader::VERTEX, vertexShaderSource);
     program->addShader(vertex_shader);
-    std::cout << cloud_->size() << std::endl;
+    //std::cout << cloud_->size() << std::endl;
     geode->addDrawable(osg_points_);
     node->asGroup()->addChild(geode);
 }
