@@ -2,6 +2,7 @@
 #include <iostream>
 #include <osgUtil/Optimizer>
 #include <osg/PolygonMode>
+#include <osg/Point>
 #include <base/Logging.hpp>
 
 namespace vizkit
@@ -9,9 +10,23 @@ namespace vizkit
 
 PointCloudVisualization::PointCloudVisualization()
 {
-    color_ = osg::Vec4( 0.8, 0.8, 0.8, 1 );
     reduction_ = 1.0;
     cloud_ = new osg::Vec3Array();
+    point_size_ = 1.f;
+
+    color_index_ = 0;
+    colors_.push_back(osg::Vec4d(0.8,0.8,0.8,1));
+    colors_.push_back(osg::Vec4d(1,1,1,1));
+    colors_.push_back(osg::Vec4d(0.2,0.2,0.2,1));
+    colors_.push_back(osg::Vec4d(0,0,0,1));
+    colors_.push_back(osg::Vec4d(1,0,0,1));
+    colors_.push_back(osg::Vec4d(0,1,0,1));
+    colors_.push_back(osg::Vec4d(0,0,1,1));
+    colors_.push_back(osg::Vec4d(0,1,1,1));
+    colors_.push_back(osg::Vec4d(1,0,1,1));
+    colors_.push_back(osg::Vec4d(1,1,0,1));
+
+    color_ = colors_[color_index_];
 }
 
 
@@ -77,10 +92,26 @@ osg::ref_ptr< osg::Node > PointCloudVisualization::createMainNode()
     return group;
 }
 
-void PointCloudVisualization::setColor(const base::Vector3d& color)
+void PointCloudVisualization::setCloudColor(int color)
 {
-    this->color_ = osg::Vec4d(color.x(), color.y(), color.z(), 1);
+    this->color_index_ = color%colors_.size();
+    this->color_ = colors_[color_index_];
     setDirty();
+}
+
+int PointCloudVisualization::cloudColor()
+{
+    return color_index_;
+}
+
+float PointCloudVisualization::pointSize()
+{
+    return point_size_;
+}
+
+void PointCloudVisualization::setPointSize(float point_size)
+{
+    point_size_ = point_size;
 }
 
 void PointCloudVisualization::setReduction(double reduction)
@@ -122,8 +153,9 @@ void PointCloudVisualization::updateMainNode( osg::Node* node )
     osg_points_->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
 
 
-
     osg::StateSet* stateset = node->getOrCreateStateSet();
+    //stateset->setMode(GL_VERTEX_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
+    stateset->setAttribute( new osg::Point( point_size_ ), osg::StateAttribute::ON);
     ///////////////////////////////////////////////////////////////////
     // vertex shader using just Vec4 coefficients
     char vertexShaderSource[] =

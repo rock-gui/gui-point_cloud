@@ -22,10 +22,11 @@ class PointCloudVisualization: public Vizkit3DPlugin<base::samples::Pointcloud>
 {
     Q_OBJECT
     Q_PROPERTY(QString modelFile READ modelFile WRITE setModelFile)
-    //Q_PROPERTY(base::Vector3d color READ color WRITE setColor)
+    Q_PROPERTY(int cloudColor READ cloudColor WRITE setCloudColor)
+    Q_PROPERTY(int pointSize READ pointSize WRITE setPointSize)
     //Q_PROPERTY(double reduction READ reduction WRITE setReduction)
 
-    public:
+public:
     PointCloudVisualization();
 
     void setModelFile(QString modelFile);
@@ -34,7 +35,10 @@ class PointCloudVisualization: public Vizkit3DPlugin<base::samples::Pointcloud>
     Q_INVOKABLE void updateData(const base::samples::Pointcloud &cloud)
     {Vizkit3DPlugin<base::samples::Pointcloud>::updateData(cloud);};
 
-    Q_INVOKABLE void setColor(base::Vector3d const& color);
+    Q_INVOKABLE void setCloudColor(int  color);
+    Q_INVOKABLE int cloudColor();
+    Q_INVOKABLE float pointSize();
+    Q_INVOKABLE void setPointSize(float point_size);
     Q_INVOKABLE void setReduction(double reduction);
     Q_INVOKABLE double reduction() const;
 
@@ -43,6 +47,9 @@ class PointCloudVisualization: public Vizkit3DPlugin<base::samples::Pointcloud>
     virtual void updateMainNode( osg::Node* node );
     void updateDataIntern ( const base::samples::Pointcloud& data );
     osg::Vec4d color_;
+    int color_index_;
+    std::vector<osg::Vec4d> colors_;
+    float point_size_;
     double reduction_;
     osg::Vec3Array* cloud_;
     QString modelFile_;
