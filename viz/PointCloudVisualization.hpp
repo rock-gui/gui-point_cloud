@@ -1,7 +1,7 @@
 #ifndef GUI_POINTCLOUDVISUALIZATION_H
 #define GUI_POINTCLOUDVISUALIZATION_H
 
-#include <vizkit/Vizkit3DPlugin.hpp>
+#include <vizkit3d/Vizkit3DPlugin.hpp>
 #include <base/samples/Pointcloud.hpp>
 #include <osg/PositionAttitudeTransform>
 #include <osg/Geode>
@@ -11,7 +11,7 @@
 
 #include <Qt/qobject.h>
 
-namespace vizkit
+namespace vizkit3d
 {
 
 inline osg::Vec3d to_osg(base::Point point){

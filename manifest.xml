@@ -5,5 +5,5 @@
   <license>LGPLv2 or later</license>
 
   <depend package="base/types" />
-  <depend package="gui/vizkit" />
+  <depend package="gui/vizkit3d" />
 </package>

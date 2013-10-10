@@ -5,7 +5,7 @@
 #include <osg/Point>
 #include <base/Logging.hpp>
 
-namespace vizkit
+namespace vizkit3d
 {
 
 PointCloudVisualization::PointCloudVisualization()
