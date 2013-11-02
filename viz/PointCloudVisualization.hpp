@@ -49,9 +49,10 @@ public:
     osg::Vec4d color_;
     int color_index_;
     std::vector<osg::Vec4d> colors_;
+    osg::ref_ptr<osg::Vec4Array> point_colors_;
     float point_size_;
     double reduction_;
-    osg::Vec3Array* cloud_;
+    osg::ref_ptr<osg::Vec3Array> cloud_;
     QString modelFile_;
 };
 

@@ -127,9 +127,19 @@ void PointCloudVisualization::setReduction(double reduction)
 void PointCloudVisualization::updateDataIntern ( const base::samples::Pointcloud& data )
 {
     cloud_->clear();
+    point_colors_->clear();
     int step = data.points.size()/(data.points.size()*reduction_);
     for(uint i=0; i<data.points.size(); i=i+step){
         cloud_->push_back(to_osg(data.points[i]));
+    }
+    if( !data.colors.empty() )
+    {	
+	assert( data.colors.size() == data.points.size() );
+
+	for(uint i=0; i<data.colors.size(); i=i+step){
+	    const base::Vector4d &color( data.colors[i] );
+	    point_colors_->push_back( osg::Vec4( color.x(), color.y(), color.z(), color.w() ) );
+	}
     }
 }
 
@@ -145,12 +155,19 @@ void PointCloudVisualization::updateMainNode( osg::Node* node )
     osg_points_->setVertexArray( cloud_ );
     osg_points_->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,cloud_->size()));
 
+    if( point_colors_->empty() )
+    {
+	osg::Vec4Array* colors = new osg::Vec4Array;
+	colors->push_back(color_);
 
-    osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back(color_);
-
-    osg_points_->setColorArray(colors);
-    osg_points_->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+	osg_points_->setColorArray(colors);
+	osg_points_->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    }
+    else
+    {
+	osg_points_->setColorArray(point_colors_);
+	osg_points_->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    }
 
 
     osg::StateSet* stateset = node->getOrCreateStateSet();
